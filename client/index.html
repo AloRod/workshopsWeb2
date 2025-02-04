@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 1 - Consume API</title>
+  <script>
+    // Función que maneja la respuesta de la API
+    const completed = (e) => {
+      // Convertimos la respuesta en formato JSON
+      const data = JSON.parse(e.target.responseText);
+
+      // Obtenemos la moneda seleccionada
+      const currency = document.getElementById("currency").value;
+
+      // Determinamos qué datos mostrar en función de la moneda seleccionada
+      let tipoCompra, tipoVenta;
+
+      if (currency === "usd") {
+        tipoCompra = parseFloat(data.TipoCompraDolares).toFixed(2); // Aseguramos que el número tenga 2 decimales
+        tipoVenta = parseFloat(data.TipoVentaDolares).toFixed(2); // Aseguramos que el número tenga 2 decimales
+      } else if (currency === "eur") {
+        tipoCompra = parseFloat(data.TipoCompraEuros).toFixed(2); // Aseguramos que el número tenga 2 decimales
+        tipoVenta = parseFloat(data.TipoVentaEuros).toFixed(2); // Aseguramos que el número tenga 2 decimales
+      }
+
+      // Actualizamos el contenido con los valores de compra y venta según la moneda
+      document.getElementById('result').innerHTML = `
+        <p><strong>Tipo de Cambio Compra (${currency.toUpperCase()}):</strong> ${tipoCompra}</p>
+        <p><strong>Tipo de Cambio Venta (${currency.toUpperCase()}):</strong> ${tipoVenta}</p>
+      `;
+    };
+
+    // Función que maneja errores en la solicitud
+    const error = () => console.error("Error al obtener los datos");
+
+    // Función que realiza la petición a la API
+    function getExchangeRate() {
+      // Obtenemos la moneda seleccionada en el <select>
+      const currency = document.getElementById("currency").value;
+
+      // Creamos un objeto XMLHttpRequest para hacer la petición
+      const ajaxRequest = new XMLHttpRequest();
+
+      // Asignamos las funciones de manejo de respuesta y error
+      ajaxRequest.addEventListener("load", completed);
+      ajaxRequest.addEventListener("error", error);
+
+      // Abrimos la conexión con el endpoint correcto según la moneda seleccionada
+      ajaxRequest.open("GET", `http://localhost:3001/tipodecambio?type=${currency}`);
+
+      // Se envia la solicitud
+      ajaxRequest.send();
+    }
+  </script>
+</head>
+
+<body>
+  <!-- Selección de la moneda -->
+  <label for="currency">Seleccione una moneda:</label>
+  <select id="currency" onchange="getExchangeRate();">
+    <option value="usd">USD</option>
+    <option value="eur">EUR</option>
+  </select>
+
+  <h3>Resultados:</h3>
+  <!-- Aquí se mostrarán los resultados -->
+  <div id="result"></div>
+</body>
+</html>
